@@ -5,14 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class ArticleNews extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
      protected $fillable = [
         'name', 'slug', 'thumbnail', 'content', 'category_id', 'author_id', 'is_featured'
     ];
+
+    public function setNameAttribute($name)
+    {
+        $this->attributes['name'] = $name;
+        $this->attributes['slug'] = Str::slug($name);
+    }
 
     public function category():BelongsTo
     {
