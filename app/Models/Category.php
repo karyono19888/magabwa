@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
@@ -14,6 +15,12 @@ class Category extends Model
         'name', 'slug', 'icon'
     ];
 
+    public function setNameAttribute($name)
+    {
+        $this->attributes['name'] = $name;
+        $this->attributes['slug'] = Str::slug($name);
+    }
+    
     // one to many relationships
     public function news():HasMany
     {
