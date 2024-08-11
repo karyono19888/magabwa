@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('article_news', function (Blueprint $table) {
             $table->id();
-            $table->string('link');
-            $table->string('type');
+            $table->string('name');
+            $table->longText('content');
             $table->string('thumbnail');
-            $table->enum('is_active',['active', 'not_active'])->default('not_active');
+            $table->enum('is_featured',['featured','not_featured'])->default('not_featured');
+            $table->string('slug')->unique();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('author_id')->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });
