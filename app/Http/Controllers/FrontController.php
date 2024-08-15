@@ -52,9 +52,35 @@ class FrontController extends Controller
         return view('front.index', compact('categories', 'articles', 'authors', 'featured_articles', 'adsBanner','entertaiment_article','entertaiment_article_featured'));
     }
 
-    public function details()
+    public function details(ArticleNews $article_news)
     {
+        $articles = ArticleNews::with('category')
+                    ->where('is_featured','not_featured')
+                    ->where('id','!=',$article_news->id)
+                    ->latest()
+                    ->take(3)
+                    ->get();
+        $categories = Category::all();
+
+        $adsBanner = BannerAdvertisment::where(['is_active' => 'active', 'type' => 'banner'])
+            ->take(1)
+            ->inRandomOrder()
+            ->get();
+            
+        $squareBanner = BannerAdvertisment::where(['is_active' => 'active', 'type' => 'square'])
+            ->take(2)
+            ->inRandomOrder()
+            ->get();
+
+        $squareBanner_1 = $squareBanner->first();
+        $squareBanner_2 = $squareBanner->count() > 1 ? $squareBanner->get(1) : $squareBanner->first();
         
+        $author_news = ArticleNews::where('author_id', $article_news->author->id)
+            ->where('id','!=',$article_news->id)
+            ->inRandomOrder()
+            ->get();
+            
+        return view('front.detail', compact('squareBanner_1','squareBanner_2','categories','article_news','articles','adsBanner', 'author_news'));
     }
 
     public function category(Category $category)
@@ -77,8 +103,18 @@ class FrontController extends Controller
         return view('front.author', compact('author','categories','adsBanner'));
     }
 
-    public function search()
-    {
+    public function search(Request $request)
+    {   
+        $request->validate([
+            'keywords' =>['required','string','max:255']
+        ]);
         
+        $categories = Category::all();
+
+        $keyword = $request->keywords;
+        $articles = ArticleNews::with(['category','author'])->where('name','like', '%'.$keyword.'%')
+                ->paginate(6);
+                
+        return view('front.search', compact('categories','articles','keyword'));
     }
 }
